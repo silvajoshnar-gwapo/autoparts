@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Parts Inventory System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">AP</div>
+            <div>
+                <h2>AutoParts</h2>
+                <span>Inventory System</span>
+            </div>
+        </div>
+
+        <nav>
+            <button class="nav-item active" data-page="dashboard">
+                <span>▦</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item" data-page="inventory">
+                <span>▤</span>
+                Master Inventory
+            </button>
+
+            <button class="nav-item" data-page="stock-in">
+                <span>＋</span>
+                Stock In
+            </button>
+
+            <button class="nav-item" data-page="stock-out">
+                <span>−</span>
+                Stock Out
+            </button>
+
+            <button class="nav-item" data-page="sales">
+                <span>₱</span>
+                Daily Sales
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="system-status">
+                <span class="status-dot"></span>
+                System Ready
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <button class="mobile-menu" id="mobileMenu">☰</button>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">Overview of your auto parts inventory</p>
+            </div>
+
+            <div class="topbar-date" id="currentDate"></div>
+        </header>
+
+        <section class="content">
+
+            <div class="page active" id="dashboard">
+
+                <div class="welcome">
+                    <div>
+                        <span class="eyebrow">INVENTORY MANAGEMENT</span>
+                        <h2>Good day! Here's your inventory overview.</h2>
+                        <p>Monitor stock levels, incoming items, outgoing items, and daily sales.</p>
+                    </div>
+
+                    <button class="primary-btn" onclick="showPage('stock-in')">
+                        + Add Stock
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-icon">▤</div>
+                        <div>
+                            <span>Total Items</span>
+                            <strong id="totalItems">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">▦</div>
+                        <div>
+                            <span>Total Stock</span>
+                            <strong id="totalStock">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">↑</div>
+                        <div>
+                            <span>Today's Stock In</span>
+                            <strong id="todayStockIn">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">₱</div>
+                        <div>
+                            <span>Today's Sales</span>
+                            <strong id="todaySales">₱0.00</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="dashboard-grid">
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>Low Stock Items</h3>
+                                <p>Items that may need restocking</p>
+                            </div>
+                            <button class="text-btn" onclick="showPage('inventory')">View All</button>
+                        </div>
+
+                        <div id="lowStockList" class="list"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>Recent Stock Activity</h3>
+                                <p>Latest inventory movements</p>
+                            </div>
+                        </div>
+
+                        <div id="recentActivity" class="activity-list"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="page" id="inventory">
+
+                <div class="page-heading">
+                    <div>
+                        <h2>Master Stock Inventory</h2>
+                        <p>View and manage all auto parts currently in stock.</p>
+                    </div>
+
+                    <button class="primary-btn" onclick="openProductModal()">
+                        + Add Item
+                    </button>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span>⌕</span>
+                        <input type="text" id="inventorySearch" placeholder="Search item code or description...">
+                    </div>
+
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <div class="panel table-panel">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Description</th>
+                                    <th>Size</th>
+                                    <th>Truck / Unit</th>
+                                    <th>Price</th>
+                                    <th>Starting</th>
+                                    <th>Stock In</th>
+                                    <th>Stock Out</th>
+                                    <th>Available</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="page" id="stock-in">
+
+                <div class="page-heading">
+                    <div>
+                        <h2>Stock In</h2>
+                        <p>Record newly delivered or restocked auto parts.</p>
+                    </div>
+                </div>
+
+                <div class="form-layout">
+
+                    <div class="panel form-panel">
+
+                        <form id="stockInForm">
+
+                            <div class="form-section">
+                                <h3>Delivery Information</h3>
+
+                                <div class="form-grid">
+
+                                    <div class="field full">
+                                        <label>Item Code</label>
+                                        <select id="stockInProduct" required>
+                                            <option value="">Select item</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Quantity Received</label>
+                                        <input type="number" id="stockInQuantity" min="1" required>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Supplier</label>
+                                        <input type="text" id="stockInSupplier" placeholder="Supplier name">
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Delivery Reference</label>
+                                        <input type="text" id="stockInReference" placeholder="DR-0001">
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Date</label>
+                                        <input type="date" id="stockInDate" required>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="stock-preview">
+
+                                <div>
+                                    <span>Previous Stock</span>
+                                    <strong id="previousStock">0</strong>
+                                </div>
+
+                                <div class="operator">+</div>
+
+                                <div>
+                                    <span>Stock In</span>
+                                    <strong id="stockInPreview">0</strong>
+                                </div>
+
+                                <div class="operator">=</div>
+
+                                <div class="highlight">
+                                    <span>New Available Stock</span>
+                                    <strong id="newStockPreview">0</strong>
+                                </div>
+
+                            </div>
+
+                            <button class="primary-btn full-btn" type="submit">
+                                Save Stock In
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="panel product-preview">
+
+                        <h3>Selected Item</h3>
+
+                        <div id="selectedProduct">
+                            <div class="empty-state">
+                                Select an item to view its details.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="panel table-panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Stock In History</h3>
+                            <p>Recent deliveries and restocking records</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Item Code</th>
+                                    <th>Description</th>
+                                    <th>Previous Stock</th>
+                                    <th>Quantity</th>
+                                    <th>New Stock</th>
+                                    <th>Supplier</th>
+                                    <th>Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockInTable"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="page" id="stock-out">
+
+                <div class="page-heading">
+                    <div>
+                        <h2>Stock Out / Sales</h2>
+                        <p>Record sold or released auto parts.</p>
+                    </div>
+                </div>
+
+                <div class="form-layout">
+
+                    <div class="panel form-panel">
+
+                        <form id="stockOutForm">
+
+                            <div class="form-section">
+
+                                <h3>Sales Information</h3>
+
+                                <div class="form-grid">
+
+                                    <div class="field full">
+                                        <label>Item Code</label>
+                                        <select id="stockOutProduct" required>
+                                            <option value="">Select item</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Quantity</label>
+                                        <input type="number" id="stockOutQuantity" min="1" required>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Customer</label>
+                                        <input type="text" id="customerName" placeholder="Customer name">
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Invoice Number</label>
+                                        <input type="text" id="invoiceNumber" placeholder="INV-0001">
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Date</label>
+                                        <input type="date" id="stockOutDate" required>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="sale-summary">
+
+                                <div>
+                                    <span>Unit Price</span>
+                                    <strong id="saleUnitPrice">₱0.00</strong>
+                                </div>
+
+                                <div>
+                                    <span>Quantity</span>
+                                    <strong id="saleQuantity">0</strong>
+                                </div>
+
+                                <div class="total">
+                                    <span>Total Amount</span>
+                                    <strong id="saleTotal">₱0.00</strong>
+                                </div>
+
+                            </div>
+
+                            <button class="primary-btn full-btn" type="submit">
+                                Save Stock Out
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="panel product-preview">
+
+                        <h3>Current Stock</h3>
+
+                        <div id="stockOutProductInfo">
+                            <div class="empty-state">
+                                Select an item to view current stock.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="panel table-panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Stock Out History</h3>
+                            <p>Recent sales and released items</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice</th>
+                                    <th>Item Code</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th>Customer</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockOutTable"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="page" id="sales">
+
+                <div class="page-heading">
+                    <div>
+                        <h2>Daily Sales Summary</h2>
+                        <p>Monitor daily sales transactions and revenue.</p>
+                    </div>
+
+                    <div class="sales-date">
+                        <input type="date" id="salesDate">
+                    </div>
+                </div>
+
+                <div class="stats-grid sales-stats">
+
+                    <div class="stat-card">
+                        <div class="stat-icon">₱</div>
+                        <div>
+                            <span>Total Sales</span>
+                            <strong id="summarySales">₱0.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">#</div>
+                        <div>
+                            <span>Transactions</span>
+                            <strong id="summaryTransactions">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">▤</div>
+                        <div>
+                            <span>Items Sold</span>
+                            <strong id="summaryItems">0</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="panel table-panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Sales Transactions</h3>
+                            <p>Detailed sales records</p>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice</th>
+                                    <th>Item Code</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>Customer</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesTable"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div class="modal" id="productModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <div>
+                <h2>Add Inventory Item</h2>
+                <p>Add a new auto part to the master inventory.</p>
+            </div>
+
+            <button onclick="closeProductModal()">×</button>
+        </div>
+
+        <form id="productForm">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label>Item Code</label>
+                    <input type="text" id="productCode" required>
+                </div>
+
+                <div class="field">
+                    <label>Description</label>
+                    <input type="text" id="productDescription" required>
+                </div>
+
+                <div class="field">
+                    <label>Category</label>
+                    <input type="text" id="productCategory">
+                </div>
+
+                <div class="field">
+                    <label>Size</label>
+                    <input type="text" id="productSize">
+                </div>
+
+                <div class="field">
+                    <label>Truck / Unit</label>
+                    <input type="text" id="productUnit">
+                </div>
+
+                <div class="field">
+                    <label>Price</label>
+                    <input type="number" id="productPrice" min="0" step="0.01" required>
+                </div>
+
+                <div class="field">
+                    <label>Starting Stock</label>
+                    <input type="number" id="productStartingStock" min="0" required>
+                </div>
+
+                <div class="field">
+                    <label>Low Stock Level</label>
+                    <input type="number" id="productLowStock" min="0" value="5">
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" onclick="closeProductModal()">Cancel</button>
+                <button type="submit" class="primary-btn">Add Item</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
